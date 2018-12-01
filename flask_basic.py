@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, g
 from werkzeug.routing import BaseConverter, ValidationError
 
 _USERS = {'1': 'Tarek', '2': 'Freya'}
@@ -25,11 +25,21 @@ def person(name):
     return response
 
 
-# # @app.route('/api/person/<person_id>')
-# @app.route('/api/person/<int:person_id>')  # 类型转换
-# def person(person_id):
-#     response = jsonify({'Hello': person_id})
-#     return response
+@app.before_request
+def authenticate():
+    if request.authorization:
+        g.user = request.authorization['username']
+    else:
+        g.user = 'Anonymous'
+
+
+@app.route('/')
+def auth():
+    print("The raw Authorization header")
+    print(request.environ["HTTP_AUTHORIZATION"])
+    print("Flask's Authorization header")
+    print(request.authorization)
+    return ""
 
 
 if __name__ == '__main__':
